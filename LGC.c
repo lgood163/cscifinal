@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-ii
+
 struct Animal {
     char name[50];
     int age;
@@ -16,11 +16,12 @@ struct Exhibit {
     struct Exhibit* nextExhibit;
 };
 
-void printExhibits(struct Exhibit* allExhibit) {
-    struct Exhibit* currentExhibit = allExhibit;
+void printExhibits(struct Exhibit* exhibitList) {
+    struct Exhibit* currentExhibit = exhibitList;
 
     while(currentExhibit != NULL) {
-        printf("%s", currentExhibit->name);
+        printf("Exhibit Name: %s\n", currentExhibit->name);
+        printf("Capacity: %d\n", currentExhibit->capacity);
 
         if(currentExhibit->nextExhibit != NULL) {
             printf(" -> ");
@@ -32,8 +33,8 @@ void printExhibits(struct Exhibit* allExhibit) {
     }
 }
 
-void printAnimals(struct Animal* allAnimals) {
-    struct Animal* currentAnimal = allAnimals;
+void printAnimals(struct Animal* animalList) {
+    struct Animal* currentAnimal = animalList;
         while(currentAnimal != NULL) {
             printf("Name: %s\n", currentAnimal->name);
             printf("Age: %d\n", currentAnimal->age);
@@ -43,18 +44,20 @@ void printAnimals(struct Animal* allAnimals) {
         }
 }
 
-struct Exhibit* createNewExhibit(const char* name, int capacity) {
+struct Exhibit* createNewExhibit(struct Exhibit** exhibitList, const char* name, int capacity) {
     struct Exhibit* newExhibit = (struct Exhibit*)malloc(sizeof(struct Exhibit));
     if (newExhibit == NULL) {
         printf("Failed to allocate memory for new exhibit.\n");
         return NULL;
     }
 
-    strncpy(newExhibit->name, name, sizeof(newExhibit->name) - 1);
+    strncpy(newExhibit->name, name, sizeof(newExhibit->name));
     newExhibit->name[sizeof(newExhibit->name) - 1] = '\0'; // Ensure null-termination
     newExhibit->capacity = capacity;
     newExhibit->nextAnimal = NULL;
-    newExhibit->nextExhibit = NULL;
+    
+    newExhibit->nextExhibit = *exhibitList;
+    *exhibitList = newExhibit;
 
     return newExhibit;
 }
@@ -65,7 +68,7 @@ struct Animal* createNewAnimal(const char* name, int age, const char* species) {
         return NULL;
     }
 
-    strncpy(newAnimal->name, name, sizeof(newAnimal->name) - 1);
+    strncpy(newAnimal->name, name, sizeof(newAnimal->name));
     newAnimal->name[sizeof(newAnimal->name) - 1] = '\0'; // Ensure null-termination
     newAnimal->age = age;
     strncpy(newAnimal->species, species, sizeof(newAnimal->species) - 1);
@@ -76,7 +79,7 @@ struct Animal* createNewAnimal(const char* name, int age, const char* species) {
 }
 
 void insertExhibit(struct Exhibit** exhibitList, const char* name, int capacity) {
-    struct Exhibit* newExhibit = createNewExhibit(name, capacity);
+    struct Exhibit* newExhibit = createNewExhibit(&exhibitList, exhibit->name, exhibit->capacity);
     if (newExhibit == NULL) {
         printf("Failed to create new exhibit.\n");
         return;
@@ -86,7 +89,7 @@ void insertExhibit(struct Exhibit** exhibitList, const char* name, int capacity)
     *exhibitList = newExhibit;
 }
 
-void insertAnimal(struct Animal** animalList, const char* name, int age, const char* species) {
+void insertAnimal(struct Animal* animalList, const char* name, int age, const char* species) {
     struct Animal* newAnimal = createNewAnimal(name, age, species);
     if (newAnimal == NULL) {
         printf("Failed to create new animal. \n");
@@ -94,7 +97,7 @@ void insertAnimal(struct Animal** animalList, const char* name, int age, const c
     }
 
     if(*animalList == NULL) {
-            *animalList = newAnimal;
+            struct Animal* animalList = NULL;
             return;
 
         }
@@ -171,6 +174,7 @@ int main() {
         scanf("%d", &choice);
         putchar('\n');
         fflush(stdout);
+        
         if(choice ==1) {
                 printf("How many exhibits would you like to start with? > ");
                 scanf("%d", &numOfExhibits);
@@ -180,10 +184,10 @@ int main() {
                         printf("Enter exhibit name > ");
                         scanf("%s", exhibit->name);
                         printf("Enter exhibit capacity > ");
-                        scanf("%d", exhibit->capacity);
-                        createNewExhibit(exhibit->name, exhibit->capacity);
+                        scanf("%d", &(exhibit->capacity));
+                        createNewExhibit(exhibitList, exhibit->name, exhibit->capacity);
                 }
-                printf(&exhibitList);
+                printExhibits(exhibitList);
         }
 
         else if(choice == 2) {
@@ -197,6 +201,7 @@ int main() {
                         scanf("%d", exhibit->capacity);
                         insertExhibit(&exhibitList, exhibit->name, exhibit->capacity);
                 }
+                printExhibits(exhibitList);
         }
 
 
@@ -213,6 +218,7 @@ int main() {
                         scanf("%s", animal->species);
                         insertAnimal(&animalList, animal->name, animal->age, animal->species);
                 }
+                printExhibits(exhibitList);
         }
 
                else if (choice == 4) {
@@ -224,6 +230,7 @@ int main() {
                         scanf("%s", animalName);
                         deleteAnimal(&animalList, animalName);
                 }
+                printExhibits(exhibitList);
         }
 
         else if(choice == 5) {
@@ -236,6 +243,7 @@ int main() {
             //          remove the exhibit name from the list
                         deleteExhibit(&exhibitList, exhibitName);
                 }
+                printExhibits(exhibitList);                
         }
 
         else if(choice == 6) {
